@@ -1,0 +1,39 @@
+[build-system]
+requires = ["hatchling>=1.24"]
+build-backend = "hatchling.build"
+
+[project]
+name = "facturalo-pe"
+version = "1.0.0"
+description = "SDK oficial de Facturalo para Python: emite facturas, boletas, notas y guías de remisión ante SUNAT, consulta RUC/DNI, idempotencia y verifica webhooks."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.9"
+authors = [{ name = "Facturalo", email = "contacto@facturalo.pe" }]
+keywords = ["facturalo", "sunat", "facturacion electronica", "factura", "boleta", "guia de remision", "peru"]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Intended Audience :: Developers",
+  "Natural Language :: Spanish",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Topic :: Office/Business :: Financial :: Accounting",
+  "Typing :: Typed",
+]
+dependencies = ["httpx>=0.25,<1"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[project.urls]
+Homepage = "https://www.facturalo.pe"
+Documentation = "https://docs.facturalo.pe"
+Source = "https://github.com/facturalo-pe/facturalo-python"
+Issues = "https://github.com/facturalo-pe/facturalo-python/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/facturalo"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

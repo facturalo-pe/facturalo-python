@@ -69,6 +69,8 @@ class HttpClient:
             # Facturalo no usa el esquema Bearer: el token va tal cual.
             "Authorization": self._token,
             "Accept": "application/json",
+            # Facturalo registra desde dónde se emite cada comprobante (consola, API, SDK…).
+            "X-Facturalo-Origen": "sdk-python",
             **extra_headers,
         }
         params = {

@@ -20,7 +20,7 @@ from .errors import (
 )
 from .webhook import construir_evento, verificar_firma
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 
 __all__ = [
     "FacturaloClient",

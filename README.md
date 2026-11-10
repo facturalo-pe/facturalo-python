@@ -48,12 +48,14 @@ El token decide el entorno: `sk_test_` envía a SUNAT Beta (demo) y `sk_live_` a
 
 | Cliente | Token | Recursos |
 |---|---|---|
-| `FacturaloClient` | `sk_test_...` / `sk_live_...` | `documentos` (enviar, generar_xml, consultar, buscar, listar, anular, reenviar, eventos, eliminar, url_archivo, descargar), `guias` (enviar, consultar, consultar_ticket, eventos, listar, descargar), `consultas` (ruc, dni, tipo_cambio, placa, soat, licencia…), `webhooks` (listar, reenviar), `sire.ventas` / `sire.compras` |
+| `FacturaloClient` | `sk_test_...` / `sk_live_...` | `documentos` (enviar, generar_xml, consultar, buscar, listar, anular, reenviar, eventos, eliminar, url_archivo, descargar), `guias` (enviar, consultar, consultar_ticket, eventos, listar, descargar), `consultas` (ruc, dni, tipo_cambio, placa, soat, licencia, codigo_producto_sunat…), `webhooks` (listar, reenviar), `sire.ventas` / `sire.compras` |
 | `FacturaloCuentaClient` | `user_sk_...` | `empresas` (listar, obtener, verificar_ruc, crear, actualizar, webhook, regenerar_token…), `establecimientos`, `consultas` |
 
 ```python
 facturalo.consultas.ruc("20100006538")
 facturalo.consultas.tipo_cambio("2026-10-30")
+# Código de producto SUNAT para un ítem, por su descripción
+facturalo.consultas.codigo_producto_sunat("laptop core i5", limite=3)
 facturalo.documentos.anular("01", "F001", "1", motivo="Error en los datos del cliente")
 pdf = facturalo.documentos.descargar(envio["documento"]["id"], "pdf")  # bytes
 ```

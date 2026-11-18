@@ -44,6 +44,22 @@ print(envio["enlaces"]["pdf"])    # PDF A4; también pdfTicket, xml y cdr
 
 El token decide el entorno: `sk_test_` envía a SUNAT Beta (demo) y `sk_live_` a producción. Un rechazo de SUNAT no es una excepción: vuelve con `estado == "RECHAZADA"` y el motivo en `envio["sunat"]`.
 
+## Exonerada en la Amazonía (Ley 27037)
+
+Empresas de la Amazonía que venden para consumo en la misma región: ítems con `tipoIgv` `"20"` y `amazonia`, que agrega la leyenda de SUNAT (`"bienes"` → 2001, `"servicios"` → 2002, `"construccion"` → 2003). Sirve en facturas y boletas.
+
+```python
+envio = facturalo.documentos.enviar({
+    **documento,
+    "amazonia": "bienes",
+    "items": [
+        {"unidadMedida": "NIU", "descripcion": "ARROZ COSTEÑO 5KG", "cantidad": 10, "precioUnitario": 25, "tipoIgv": "20"},
+    ],
+})
+```
+
+Sin ningún ítem exonerado la API responde 422 (SUNAT lo rechazaría con 3283/3284/3285).
+
 ## Recursos
 
 | Cliente | Token | Recursos |

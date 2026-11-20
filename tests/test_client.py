@@ -7,8 +7,10 @@ from facturalo import (
     FacturaloClient,
     FacturaloCuentaClient,
     FacturaloNotFoundError,
+    FacturaloPermissionError,
     FacturaloValidationError,
 )
+from facturalo.errors import PLAN_SIN_API
 
 
 def cliente(handler, token="sk_test_abc"):
@@ -65,6 +67,23 @@ def test_errores_mapean_por_status():
 
     with pytest.raises(FacturaloNotFoundError):
         cliente(lambda req: httpx.Response(404, json={"message": "No existe"})).documentos.consultar("x")
+
+
+def test_error_de_plan_expone_code():
+    def handler(request):
+        return httpx.Response(
+            403,
+            json={"success": False, "code": "PLAN_SIN_API", "message": "El plan Gratis no incluye la API."},
+        )
+
+    with pytest.raises(FacturaloPermissionError) as e:
+        cliente(handler, token="sk_live_x").documentos.enviar({})
+    assert e.value.status == 403
+    assert e.value.code == PLAN_SIN_API
+
+    with pytest.raises(FacturaloNotFoundError) as e2:
+        cliente(lambda req: httpx.Response(404, json={"message": "No existe"})).documentos.consultar("x")
+    assert e2.value.code is None
 
 
 def test_post_sin_idempotencia_no_se_reintenta():

@@ -30,6 +30,11 @@ class Documentos:
 
         Un rechazo de SUNAT no es una excepción: vuelve con `estado == "RECHAZADA"` y el motivo en `sunat`.
         Con `idempotency_key`, reintentar la misma petición no duplica el comprobante.
+
+        Opcionales en `documento`: `percepcion` {"tipo": "51"|"52"|"53"} (solo al contado),
+        `retencion` {"tipo": "62", "porcentaje": 3} (solo facturas a RUC), `totalOtrosCargos`
+        (código 50, fuera de la base del IGV) y `tipoCambio` (obligatorio en USD con ICBPER o
+        percepción). `totalIsc` mayor a 0 responde 422.
         """
         body: Dict[str, Any] = {"webhook": webhook, "documento": documento}
         if establecimiento is not None:

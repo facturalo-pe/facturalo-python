@@ -39,7 +39,7 @@ envio = facturalo.documentos.enviar(
 )
 
 print(envio["estado"])            # ACEPTADA o RECHAZADA
-print(envio["enlaces"]["pdf"])    # PDF A4; también pdfTicket, xml y cdr
+print(envio["enlaces"]["pdf"])    # PDF A4; también pdfTicket (80 mm), pdfTicket58 (58 mm), xml y cdr
 ```
 
 El token decide el entorno: `sk_test_` envía a SUNAT Beta (demo) y `sk_live_` a producción. Un rechazo de SUNAT no es una excepción: vuelve con `estado == "RECHAZADA"` y el motivo en `envio["sunat"]`.

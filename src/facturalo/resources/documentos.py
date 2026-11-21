@@ -5,7 +5,13 @@ from urllib.parse import quote
 
 from .._http import HttpClient
 
-_EXTENSION = {"pdf": ".pdf", "ticket": ".ticket.pdf", "xml": ".xml", "cdr": ".cdr"}
+_EXTENSION = {
+    "pdf": ".pdf",
+    "ticket": ".ticket.pdf",  # 80 mm
+    "ticket58": ".ticket.pdf?ancho=58",  # 58 mm
+    "xml": ".xml",
+    "cdr": ".cdr",
+}
 
 
 def _id(valor: str) -> str:
@@ -111,9 +117,9 @@ class Documentos:
         self._http.request("DELETE", f"/documentos/{_id(id)}")
 
     def url_archivo(self, id: str, formato: str = "pdf") -> str:
-        """URL pública del PDF (A4), ticket, XML o CDR."""
+        """URL pública del PDF (A4), ticket (80 mm), ticket58 (58 mm), XML o CDR."""
         if formato not in _EXTENSION:
-            raise ValueError("Formato no válido. Usa pdf, ticket, xml o cdr.")
+            raise ValueError("Formato no válido. Usa pdf, ticket, ticket58, xml o cdr.")
         return self._http.file_url(f"/documentos/{_id(id)}{_EXTENSION[formato]}")
 
     def descargar(self, id: str, formato: str = "pdf") -> bytes:

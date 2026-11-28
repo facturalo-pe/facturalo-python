@@ -4,6 +4,7 @@ import httpx
 import pytest
 
 from facturalo import (
+    FacturaloApiError,
     FacturaloClient,
     FacturaloCuentaClient,
     FacturaloNotFoundError,
@@ -95,6 +96,51 @@ def test_post_sin_idempotencia_no_se_reintenta():
 
     with pytest.raises(Exception):
         cliente(handler).documentos.enviar({})
+    assert len(llamadas) == 1
+
+
+def test_validar_guia_envuelve_y_devuelve_la_prediccion():
+    visto = {}
+    data = {
+        "valido": False,
+        "prediccion": "RECHAZADA",
+        "guia": {"tipo": "09", "serie": "T001", "correlativo": "1"},
+        "errores": [{"codigo": "3343", "mensaje": "Fecha de traslado anterior a la emisión", "detalle": "x"}],
+        "observaciones": [],
+    }
+
+    def handler(request: httpx.Request):
+        visto["metodo"] = request.method
+        visto["url"] = str(request.url)
+        visto["body"] = json.loads(request.content)
+        return ok(data)
+
+    guia = {"serie": "T001", "correlativo": "1", "motivoTraslado": "02"}
+    r = cliente(handler).guias.validar(guia)
+    assert r["prediccion"] == "RECHAZADA"
+    assert r["errores"][0]["codigo"] == "3343"
+    assert visto["metodo"] == "POST"
+    assert visto["url"] == "https://api.facturalo.pe/api/v3/guias/validar"
+    assert visto["body"] == {"guia": guia}
+
+
+def test_validar_guia_422_y_503_sin_reintentar():
+    def invalida(request):
+        return httpx.Response(422, json={"success": False, "message": "x", "errors": {"guia.proveedor": ["obligatorio"]}})
+
+    with pytest.raises(FacturaloValidationError) as e:
+        cliente(invalida).guias.validar({"serie": "T001"})
+    assert e.value.errors == {"guia.proveedor": ["obligatorio"]}
+
+    llamadas = []
+
+    def no_disponible(request):
+        llamadas.append(1)
+        return httpx.Response(503, json={"success": False, "message": "x", "data": {"valido": None}})
+
+    with pytest.raises(FacturaloApiError) as e2:
+        cliente(no_disponible).guias.validar({"serie": "T001"})
+    assert e2.value.status == 503
     assert len(llamadas) == 1
 
 

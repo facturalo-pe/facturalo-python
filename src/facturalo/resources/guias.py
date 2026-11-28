@@ -17,8 +17,25 @@ class Guias:
     def enviar(
         self, guia: Dict[str, Any], *, webhook: bool = False, idempotency_key: Optional[str] = None
     ) -> Dict[str, Any]:
+        """Emite la guía: la serie decide el tipo (T... remitente 09, V... transportista 31).
+
+        Remitente (09): `proveedor` {tipoDocumento, numeroDocumento, denominacion} es obligatorio con
+        motivo 02 y 07; `comprador` (mismos campos) con motivo 03; `descripcionMotivo` (máx. 100) con
+        motivo 13 si no hay `observaciones`. Los motivos 08 y 09 aún no se emiten (422).
+        Transportista (31): `datosVehiculo.numeroTUC` es obligatorio (10 a 15 letras y números).
+        """
         headers = {"Idempotency-Key": idempotency_key} if idempotency_key else {}
         return self._http.request("POST", "/guias/enviar", {"webhook": webhook, "guia": guia}, headers=headers)
+
+    def validar(self, guia: Dict[str, Any]) -> Dict[str, Any]:
+        """Valida la guía con el mismo cuerpo que `enviar`, sin usar el correlativo, guardar ni enviar.
+
+        Aplica las reglas de la API (422 como `enviar`), arma el XML y corre las reglas de SUNAT.
+        Devuelve `valido`, `prediccion` (ACEPTADA o RECHAZADA), `guia` {tipo, serie, correlativo},
+        `errores` y `observaciones` ({codigo, mensaje, detalle}). Si las reglas de SUNAT no están
+        disponibles lanza `FacturaloApiError` con `status` 503: la guía se puede enviar igual.
+        """
+        return self._http.request("POST", "/guias/validar", {"guia": guia})
 
     def consultar(self, id: str) -> Dict[str, Any]:
         return self._http.request("GET", f"/guias/{quote(id, safe='')}")
